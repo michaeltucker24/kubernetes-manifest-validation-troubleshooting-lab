@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: configmap-demo-app
+  labels:
+    app: configmap-demo-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: configmap-demo-app
+  template:
+    metadata:
+      labels:
+        app: configmap-demo-app
+    spec:
+      containers:
+        - name: web
+          image: nginx:alpine
+          envFrom:
+            - configMapRef:
+                name: app-config
+          ports:
+            - containerPort: 80

@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: image-error-demo
+  labels:
+    app: image-error-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: image-error-demo
+  template:
+    metadata:
+      labels:
+        app: image-error-demo
+    spec:
+      containers:
+        - name: web
+          image: nginx:not-a-real-tag
+          ports:
+            - containerPort: 80

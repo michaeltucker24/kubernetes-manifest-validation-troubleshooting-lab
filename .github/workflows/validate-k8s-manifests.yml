@@ -1,0 +1,54 @@
+name: Validate Kubernetes Manifests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  validate:
+    name: Validate Kubernetes YAML
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify scenario directories exist
+        run: |
+          test -d scenarios/01-service-selector-mismatch
+          test -d scenarios/02-invalid-image-reference
+          test -d scenarios/03-port-mismatch
+          test -d scenarios/04-missing-configmap
+
+      - name: Validate YAML syntax
+        run: |
+          python - <<'PY'
+          import yaml
+          from pathlib import Path
+
+          yaml_files = list(Path("scenarios").rglob("*.yaml"))
+
+          if not yaml_files:
+              raise SystemExit("No YAML files found.")
+
+          for file in yaml_files:
+              with open(file, "r") as f:
+                  yaml.safe_load(f)
+              print(f"YAML syntax OK: {file}")
+          PY
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: latest
+
+      - name: Validate fixed manifests with kubectl dry-run
+        run: |
+          kubectl create --dry-run=client --validate=false -f scenarios/01-service-selector-mismatch/fixed/ -o yaml
+          kubectl create --dry-run=client --validate=false -f scenarios/02-invalid-image-reference/fixed/ -o yaml
+          kubectl create --dry-run=client --validate=false -f scenarios/03-port-mismatch/fixed/ -o yaml
+          kubectl create --dry-run=client --validate=false -f scenarios/04-missing-configmap/fixed/ -o yaml
