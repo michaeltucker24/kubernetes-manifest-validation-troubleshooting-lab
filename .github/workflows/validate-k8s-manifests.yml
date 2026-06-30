@@ -58,7 +58,7 @@ jobs:
 
       - name: Validate fixed manifests with kubectl dry-run
         run: |
-          kubectl create --dry-run=client --validate=false -f scenarios/01-service-selector-mismatch/fixed/ -o yaml
-          kubectl create --dry-run=client --validate=false -f scenarios/02-invalid-image-reference/fixed/ -o yaml
-          kubectl create --dry-run=client --validate=false -f scenarios/03-port-mismatch/fixed/ -o yaml
-          kubectl create --dry-run=client --validate=false -f scenarios/04-missing-configmap/fixed/ -o yaml
+          kubectl apply --dry-run=client --validate=false -f scenarios/01-service-selector-mismatch/fixed/
+          kubectl apply --dry-run=client --validate=false -f scenarios/02-invalid-image-reference/fixed/
+          kubectl apply --dry-run=client --validate=false -f scenarios/03-port-mismatch/fixed/
+          kubectl apply --dry-run=client --validate=false -f scenarios/04-missing-configmap/fixed/
