@@ -24,6 +24,16 @@ jobs:
           test -d scenarios/03-port-mismatch
           test -d scenarios/04-missing-configmap
 
+      - name: Install Python YAML dependency
+        run: |
+          python -m pip install pyyaml
+
+      - name: Validate YAML syntax
+        run: |
+          python - <<'PY'
+          import yaml
+          from pathlib import Path
+
       - name: Validate YAML syntax
         run: |
           python - <<'PY'
