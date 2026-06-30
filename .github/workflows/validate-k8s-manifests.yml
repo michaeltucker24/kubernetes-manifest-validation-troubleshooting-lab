@@ -51,14 +51,16 @@ jobs:
               print(f"YAML syntax OK: {file}")
           PY
 
-      - name: Set up kubectl
-        uses: azure/setup-kubectl@v4
-        with:
-          version: latest
-
-      - name: Validate fixed manifests with kubectl dry-run
+      - name: Install kubeconform
         run: |
-          kubectl apply --dry-run=client --validate=false -f scenarios/01-service-selector-mismatch/fixed/
-          kubectl apply --dry-run=client --validate=false -f scenarios/02-invalid-image-reference/fixed/
-          kubectl apply --dry-run=client --validate=false -f scenarios/03-port-mismatch/fixed/
-          kubectl apply --dry-run=client --validate=false -f scenarios/04-missing-configmap/fixed/
+          curl -L -o kubeconform.tar.gz https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz
+          tar -xzf kubeconform.tar.gz
+          sudo mv kubeconform /usr/local/bin/kubeconform
+          kubeconform -v
+
+      - name: Validate fixed manifests with kubeconform
+        run: |
+          kubeconform -summary -strict scenarios/01-service-selector-mismatch/fixed/
+          kubeconform -summary -strict scenarios/02-invalid-image-reference/fixed/
+          kubeconform -summary -strict scenarios/03-port-mismatch/fixed/
+          kubeconform -summary -strict scenarios/04-missing-configmap/fixed/
