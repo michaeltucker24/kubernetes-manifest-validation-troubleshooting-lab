@@ -268,7 +268,7 @@ This lab follows a simple Kubernetes troubleshooting workflow:
 3. Compare related fields such as labels, selectors, ports, image references, and ConfigMap names.
 4. Identify the root cause.
 5. Review the corrected manifest.
-6. Validate the fixed manifests using GitHub Actions and `kubectl dry-run`.
+6. Validate the fixed manifests using GitHub Actions and `kubeconform`.
 
 ---
 
