@@ -6,7 +6,7 @@ This repository contains a junior-level Kubernetes troubleshooting lab focused o
 
 The purpose of this project is to practice reading Kubernetes YAML files, identifying configuration problems, documenting root causes, and validating corrected manifests with GitHub Actions.
 
-This project is part of my Junior DevOps portfolio and focuses on Kubernetes troubleshooting, YAML validation, `kubectl` usage, GitHub Actions validation, and root-cause documentation.
+This project is part of my Junior DevOps portfolio and focuses on Kubernetes troubleshooting, YAML validation, Kubernetes manifest review, GitHub Actions validation, and root-cause documentation.
 
 ---
 
@@ -29,7 +29,7 @@ This project does not deploy workloads to a live Kubernetes cluster. It focuses 
 * Troubleshoot Service and container port mismatches
 * Troubleshoot missing ConfigMap references
 * Validate YAML syntax
-* Validate fixed manifests with `kubectl dry-run`
+* Validate fixed Kubernetes manifests without a live cluster
 * Automate manifest validation with GitHub Actions
 * Document root cause, impact, and resolution for each issue
 
@@ -37,26 +37,26 @@ This project does not deploy workloads to a live Kubernetes cluster. It focuses 
 
 ## Environment
 
-| Component            | Details             |
-| -------------------- | ------------------- |
-| Version Control      | Git and GitHub      |
-| Automation           | GitHub Actions      |
-| Kubernetes Tooling   | kubectl             |
-| Configuration Format | YAML                |
-| Validation Method    | Client-side dry-run |
-| Cluster Required     | No                  |
+| Component             | Details                                      |
+| --------------------- | -------------------------------------------- |
+| Version Control       | Git and GitHub                               |
+| Automation            | GitHub Actions                               |
+| Kubernetes Validation | kubeconform                                  |
+| Configuration Format  | YAML                                         |
+| Validation Method     | Schema validation and YAML syntax validation |
+| Cluster Required      | No                                           |
 
 ---
 
 ## Tools and Commands Used
 
-| Tool / Command                    | Purpose                                         |
-| --------------------------------- | ----------------------------------------------- |
-| `kubectl create --dry-run=client` | Validate Kubernetes manifests without deploying |
-| `python yaml.safe_load()`         | Validate YAML syntax                            |
-| `GitHub Actions`                  | Run automated validation workflow               |
-| `git`                             | Version control and repository management       |
-| `YAML`                            | Kubernetes manifest format                      |
+| Tool / Command            | Purpose                                                   |
+| ------------------------- | --------------------------------------------------------- |
+| `git`                     | Version control and repository management                 |
+| `GitHub Actions`          | Runs automated validation workflow                        |
+| `python yaml.safe_load()` | Validates YAML syntax                                     |
+| `kubeconform`             | Validates Kubernetes manifests against Kubernetes schemas |
+| `YAML`                    | Kubernetes manifest format                                |
 
 ---
 
@@ -64,11 +64,11 @@ This project does not deploy workloads to a live Kubernetes cluster. It focuses 
 
 * Kubernetes manifest troubleshooting
 * YAML syntax validation
+* Kubernetes schema validation
 * Service selector analysis
 * Deployment and Service relationship troubleshooting
 * Image reference troubleshooting
 * ConfigMap reference troubleshooting
-* `kubectl` dry-run validation
 * GitHub Actions workflow automation
 * Root-cause analysis
 * Technical documentation
@@ -207,13 +207,16 @@ Checkout repository
 Verify scenario directories exist
         |
         v
+Install Python YAML dependency
+        |
+        v
 Validate YAML syntax
         |
         v
-Install kubectl
+Install kubeconform
         |
         v
-Validate fixed manifests with kubectl dry-run
+Validate fixed manifests with kubeconform
 ```
 
 Workflow file:
@@ -224,15 +227,25 @@ Workflow file:
 
 ---
 
-## Validation Commands
+## Validation Method
 
-The fixed manifests can be validated without deploying to a cluster.
+This project originally attempted to use `kubectl dry-run` for validation. However, GitHub Actions does not have access to a Kubernetes API server by default.
+
+Because this lab is intentionally clusterless, the workflow now uses `kubeconform` to validate Kubernetes manifests against Kubernetes schemas without needing a live Kubernetes cluster.
+
+This makes the project better aligned with its purpose: pre-deployment manifest validation.
+
+---
+
+## Example Workflow Validation Commands
+
+The workflow validates the fixed manifests using `kubeconform`:
 
 ```bash
-kubectl create --dry-run=client --validate=false -f scenarios/01-service-selector-mismatch/fixed/ -o yaml
-kubectl create --dry-run=client --validate=false -f scenarios/02-invalid-image-reference/fixed/ -o yaml
-kubectl create --dry-run=client --validate=false -f scenarios/03-port-mismatch/fixed/ -o yaml
-kubectl create --dry-run=client --validate=false -f scenarios/04-missing-configmap/fixed/ -o yaml
+kubeconform -summary -strict scenarios/01-service-selector-mismatch/fixed/
+kubeconform -summary -strict scenarios/02-invalid-image-reference/fixed/
+kubeconform -summary -strict scenarios/03-port-mismatch/fixed/
+kubeconform -summary -strict scenarios/04-missing-configmap/fixed/
 ```
 
 ---
@@ -244,9 +257,10 @@ kubectl create --dry-run=client --validate=false -f scenarios/04-missing-configm
 * [ ] Root cause is documented for each issue
 * [ ] GitHub Actions workflow is included
 * [ ] YAML syntax validation passes
-* [ ] Fixed manifests pass `kubectl dry-run` validation
+* [ ] Fixed manifests pass kubeconform validation
 * [ ] Troubleshooting notes are documented
 * [ ] Repository structure is organized clearly
+* [ ] GitHub Actions workflow completes successfully
 
 ---
 
